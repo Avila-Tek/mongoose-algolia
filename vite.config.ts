@@ -1,15 +1,26 @@
-// vite.config.ts
+/* eslint-disable import/no-extraneous-dependencies */
+/// <reference types="vitest" />
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-// https://vitejs.dev/guide/build.html#library-mode
+
 export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'avila-tek-mongoose-algolia',
-      fileName: 'avila-tek-mongoose-algolia',
+      name: 'at-mongoose-algolia',
+      fileName: 'at-mongoose-algolia',
     },
   },
-  plugins: [dts()],
+  plugins: [
+    dts({
+      outputDir: './dist',
+      insertTypesEntry: true,
+      copyDtsFiles: true,
+    }),
+  ],
+  test: {
+    setupFiles: ['dotenv/config'],
+    globals: true,
+  },
 });
