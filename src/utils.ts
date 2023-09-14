@@ -18,14 +18,14 @@ function getIndexName(doc: TDoc, indexName: TIndexName) {
   return promisify(typeof indexName !== 'string' ? indexName(doc) : indexName);
 }
 
-async function applyPopulation(doc: TDoc, populate?: TPopulate) {
+function applyPopulation(doc: TDoc, populate?: TPopulate) {
   if (!populate) {
     return doc;
   }
   return doc.populate(populate);
 }
 
-async function applyMappings(doc: TDoc, mappings?: TMappings) {
+function applyMappings(doc: TDoc, mappings?: TMappings) {
   if (!mappings) {
     return doc;
   }

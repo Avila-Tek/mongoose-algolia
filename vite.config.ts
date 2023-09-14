@@ -14,7 +14,7 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      outputDir: './dist',
+      outDir: './dist',
       insertTypesEntry: true,
       copyDtsFiles: true,
     }),

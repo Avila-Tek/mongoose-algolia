@@ -72,7 +72,8 @@ export async function synchronize<T = any>(
         });
       }
 
-      objects = objects.map((obj) => obj.getAlgoliaObject());
+      objects = await Promise.all(objects.map((obj) => obj.getAlgoliaObject()));
+      console.log(objects);
 
       await currentIndex.saveObjects(objects);
     }

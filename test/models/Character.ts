@@ -75,7 +75,7 @@ characterSchema.plugin(algoliaIntegration<ICharacter>, {
   },
   mappings: {
     name(value) {
-      return `${value.firstname} ${value.lastname}`;
+      return `${value.name.firstname} ${value.name.lastname}`;
     },
   },
   debug: true,
