@@ -36,16 +36,18 @@ export function algoliaIntegration<T = any>(
 
   operations<T>(schema, options, client);
 
-  schema.statics.syncToAlgolia = function () {
-    const callable = synchronize.bind(this as any);
+  schema.statics.syncToAlgolia = async function () {
+    const callable = await synchronize.bind(this as any);
     return callable(options, client);
   };
 
-  schema.statics.setAlgoliaSettings = function (settings: TAlgoliaSettings) {
+  schema.statics.setAlgoliaSettings = async function (
+    settings: TAlgoliaSettings
+  ) {
     if (!settings) {
       throw new Error('Mongoose-Algolia: You must provide settings');
     }
-    const callable = syncSettings.bind(this as any);
+    const callable = await syncSettings.bind(this as any);
     return callable(settings, options, client);
   };
 }

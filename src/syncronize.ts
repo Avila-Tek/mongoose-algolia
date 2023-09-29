@@ -21,9 +21,11 @@ export async function synchronize<T = any>(
   let docs: any[] = [];
   const indicesMap: Record<string, any[]> = {};
   try {
-    let query = this.find();
+    let query = null;
     if (options.populate) {
-      query = query.populate(options.populate as any);
+      query = this.find().populate(options.populate as any);
+    } else {
+      query = this.find();
     }
     docs = await query.exec();
   } catch (err) {

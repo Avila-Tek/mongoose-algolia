@@ -1,8 +1,10 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { connect, close } from './db';
 import { Character } from './models/Character';
 import { Show } from './models/Show';
 import sampleData from './sampleData.json';
+import { Product } from './models/Product';
 
 beforeAll(async () => {
   await connect();
@@ -41,6 +43,36 @@ describe('Mongoose Algolia Plugin', () => {
           })
           .flat(2)
       );
+      const products = await Promise.all(
+        new Array(10).fill(0).map(() =>
+          Product.create({
+            title: faker.commerce.product(),
+            description: faker.commerce.productDescription(),
+            categories: [],
+            priority: 1,
+            rating: 0,
+            points: 0,
+            reviews: 0,
+            comments: [],
+            photos: [],
+            measurementType: 'unit',
+            volatileInventory: true,
+            sku: faker.git.commitSha(),
+            stock: 0,
+            ignoreStock: false,
+            price: faker.commerce.price(),
+            compareAtPrice: null,
+            isGiftCard: false,
+            extraInfo: [],
+            taxes: [],
+            tags: [],
+            packaged: true,
+            status: 'active',
+            active: true,
+          })
+        )
+      );
+      expect(products.length).toBe(10);
       expect(shows.length).toBe(2);
       expect(characters.length).toBe(5);
     } catch (err) {
