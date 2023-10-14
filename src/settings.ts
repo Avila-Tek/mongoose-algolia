@@ -24,11 +24,18 @@ export async function syncSettings<T = any>(
 ) {
   try {
     const docs = await this.find().exec();
-    const indices = [];
+    const indices: string[] = [];
+
+    // eslint-disable-next-line no-inner-declarations
+    function addToIndex(entry: string) {
+      if (!indices.includes(entry)) {
+        indices.push(entry);
+      }
+    }
 
     for (const element of docs) {
       const index = await utils.getIndexName(element, options.indexName);
-      indices.push(index);
+      addToIndex(index);
     }
 
     for (const indexName of indices) {

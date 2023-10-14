@@ -32,7 +32,7 @@ function applyMappings(doc: TDoc, mappings?: TMappings) {
   Object.keys(mappings).forEach((key) => {
     // TODO: FIXME - Allow nested mappings
     if (typeof mappings[key] === 'function') {
-      doc[key] = mappings[key](doc);
+      doc[key] = mappings[key](doc[key]);
     }
   });
   return doc;

@@ -1,6 +1,6 @@
 {
   "name": "@avila-tek/mongoose-algolia",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "type": "module",
   "main": "dist/at-mongoose-algolia.umd.cjs",
   "module": "./dist/at-mongoose-algolia.js",

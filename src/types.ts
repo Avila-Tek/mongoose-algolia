@@ -35,6 +35,7 @@ export type TMongooseAlgoliaOptions<T = Schema> = {
   filter?: TFilter;
   populate?: TPopulate;
   debug?: boolean;
+  chunkSize?: number;
 };
 
 export type TDoc = Document<any> & Record<string, any>;

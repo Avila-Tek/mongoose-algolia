@@ -37,7 +37,6 @@ export async function synchronize<T = any>(
       ' -> ',
       err
     );
-    throw err;
   }
 
   for (const doc of docs) {
@@ -75,9 +74,17 @@ export async function synchronize<T = any>(
       }
 
       objects = await Promise.all(objects.map((obj) => obj.getAlgoliaObject()));
-      console.log(objects);
+      const chunkSize = options?.chunkSize ?? 100;
+      const chunks = Math.ceil(objects.length / chunkSize);
+      for (let i = 0; i < chunks; i += 1) {
+        const chunk =
+          i === chunkSize - 1
+            ? objects.slice(i * chunkSize)
+            : objects.slice(i * chunkSize, (i + 1) * chunkSize);
 
-      await currentIndex.saveObjects(objects);
+        await currentIndex.saveObjects(chunk);
+      }
+      // await currentIndex.saveObjects(objects);
     }
   } catch (err) {
     console.error(
@@ -88,6 +95,5 @@ export async function synchronize<T = any>(
       ' -> ',
       err
     );
-    throw err;
   }
 }
