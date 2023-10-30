@@ -1,4 +1,5 @@
 import algolia from 'algoliasearch';
+import { createNodeHttpRequester } from '@algolia/requester-node-http';
 import type { Model, Schema } from 'mongoose';
 import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 import { operations } from './operations';
@@ -32,7 +33,9 @@ export function algoliaIntegration<T = any>(
     throw new TypeError('Mongoose-Algolia: The appId opts is required');
   }
 
-  const client = algolia(options.appId, options.apiKey);
+  const client = algolia(options.appId, options.apiKey, {
+    requester: createNodeHttpRequester(),
+  });
 
   operations<T>(schema, options, client);
 

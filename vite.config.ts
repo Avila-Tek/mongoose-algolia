@@ -3,6 +3,7 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   build: {
@@ -18,6 +19,7 @@ export default defineConfig({
       insertTypesEntry: true,
       copyDtsFiles: true,
     }),
+    nodePolyfills(),
   ],
   test: {
     setupFiles: ['dotenv/config'],
