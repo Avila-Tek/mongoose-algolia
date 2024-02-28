@@ -3,7 +3,6 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   build: {
@@ -11,7 +10,16 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'at-mongoose-algolia',
       fileName: 'at-mongoose-algolia',
+      formats: ['es', 'cjs', 'umd'],
     },
+    sourcemap: true,
+    minify: false,
+    rollupOptions: {
+      external: ['algoliasearch', 'mongoose'],
+    },
+  },
+  esbuild: {
+    platform: 'node',
   },
   plugins: [
     dts({
@@ -19,8 +27,8 @@ export default defineConfig({
       insertTypesEntry: true,
       copyDtsFiles: true,
     }),
-    nodePolyfills(),
   ],
+
   test: {
     setupFiles: ['dotenv/config'],
     globals: true,

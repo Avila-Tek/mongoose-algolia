@@ -51,11 +51,24 @@ export async function synchronize<T = any>(
   try {
     for (const currentIndexName of Object.keys(indicesMap)) {
       const currentIndex = client.initIndex(currentIndexName);
-      await currentIndex.clearObjects();
-      if (options.debug) {
+      if (await currentIndex.exists()) {
+        await currentIndex.clearObjects();
+        if (options.debug) {
+          console.log(
+            clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
+            clc.cyanBright('Mongoose-Algolia'),
+            ' -> ',
+            clc.greenBright('Cleared Index'),
+            ' -> ',
+            currentIndexName
+          );
+        }
+      } else if (options.debug) {
         console.log(
           clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
           clc.cyanBright('Mongoose-Algolia'),
+          ' -> ',
+          clc.redBright(`${currentIndexName} does not exist`),
           ' -> ',
           clc.greenBright('Cleared Index'),
           ' -> ',

@@ -31,7 +31,7 @@ export function operations<T, TModel = Model<T, any, TStaticMethods, any>>(
 
   schema.post('findOneAndUpdate', async function () {
     const query = this.getQuery();
-    const doc = await this.findOne(query).exec();
+    const doc = await this.findOne(query).clone().exec();
     if ('active' in doc && doc.active === false) {
       await runActionOnIndices(doc, removeItem);
       return;
@@ -45,7 +45,7 @@ export function operations<T, TModel = Model<T, any, TStaticMethods, any>>(
 
   schema.pre('findOneAndDelete', async function () {
     const query = this.getQuery();
-    const doc = await this.findOne(query).exec();
+    const doc = await this.findOne(query).clone().exec();
     await runActionOnIndices(doc, removeItem);
   });
 
