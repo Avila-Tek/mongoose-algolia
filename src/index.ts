@@ -1,9 +1,9 @@
-import algoliasearch from 'algoliasearch';
+import { algoliasearch, IndexSettings } from 'algoliasearch';
 import type { Model, Schema } from 'mongoose';
-import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 import { operations } from './operations';
-import { TAlgoliaSettings, syncSettings } from './settings';
+import { syncSettings } from './settings';
 import { synchronize } from './syncronize';
+import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 
 export function algoliaIntegration<T = any>(
   schema: Schema<T, Model<T, any, TStaticMethods, any>>,
@@ -22,32 +22,40 @@ export function algoliaIntegration<T = any>(
   };
 
   if (!options.indexName) {
-    throw new TypeError('Mongoose-Algolia: The indexName opts is required');
+    throw new TypeError(
+      '[@avila-tek/mongoose-algolia]: The indexName opts is required'
+    );
   }
 
   if (!options.apiKey) {
-    throw new TypeError('Mongoose-Algolia: The apiKey opts is required');
+    throw new TypeError(
+      '[@avila-tek/mongoose-algolia]: The apiKey opts is required'
+    );
   }
   if (!options.appId) {
-    throw new TypeError('Mongoose-Algolia: The appId opts is required');
+    throw new TypeError(
+      '[@avila-tek/mongoose-algolia]: The appId opts is required'
+    );
   }
 
   const client = algoliasearch(options.appId, options.apiKey);
 
   operations<T>(schema, options, client);
 
+
+
   schema.statics.syncToAlgolia = async function () {
-    const callable = await synchronize.bind(this as any);
-    return callable(options, client);
+    const callable = synchronize.bind(this as any);
+    return await callable(options, client);
   };
 
-  schema.statics.setAlgoliaSettings = async function (
-    settings: TAlgoliaSettings
-  ) {
+  schema.statics.setAlgoliaSettings = async function (settings: IndexSettings) {
     if (!settings) {
-      throw new Error('Mongoose-Algolia: You must provide settings');
+      throw new Error(
+        '[@avila-tek/mongoose-algolia]: You must provide settings'
+      );
     }
-    const callable = await syncSettings.bind(this as any);
-    return callable(settings, options, client);
+    const callable = syncSettings.bind(this as any);
+    return await callable(settings, options, client);
   };
 }

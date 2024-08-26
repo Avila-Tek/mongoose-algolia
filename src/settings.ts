@@ -1,13 +1,8 @@
-/* eslint-disable camelcase */
-/* eslint-disable no-await-in-loop */
-import clc from 'cli-color';
-import type { SearchClient } from 'algoliasearch';
+import type { IndexSettings, SearchClient } from 'algoliasearch';
 import type { Document, IfAny, Model, Require_id, Schema } from 'mongoose';
-import type { Settings } from '@algolia/client-search';
 import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
+import clc from 'cli-color';
 import utils from './utils';
-
-export type TAlgoliaSettings = Settings;
 
 export async function syncSettings<T = any>(
   this: Model<
@@ -18,7 +13,7 @@ export async function syncSettings<T = any>(
     IfAny<T, any, Document<unknown, any, T> & Omit<Require_id<T>, never>>,
     any
   >,
-  settings: TAlgoliaSettings,
+  settings: IndexSettings,
   options: TMongooseAlgoliaOptions<Schema<T>>,
   client: SearchClient
 ) {
@@ -39,12 +34,14 @@ export async function syncSettings<T = any>(
     }
 
     for (const indexName of indices) {
-      const currentIndex = client.initIndex(indexName);
-      await currentIndex.setSettings(settings);
+      await client.setSettings({
+        indexName,
+        indexSettings: settings,
+      });
       if (options.debug) {
         console.log(
           clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-          clc.cyanBright('Mongoose-Algolia'),
+          clc.cyanBright('@avila-tek/mongoose-algolia'),
           ' -> ',
           clc.greenBright('Updated Settings'),
           ' -> ',
@@ -55,7 +52,7 @@ export async function syncSettings<T = any>(
   } catch (err) {
     return console.error(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-      clc.cyanBright('Mongoose-Algolia'),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
       clc.red.bold('Error'),
       ' -> ',

@@ -1,8 +1,10 @@
+import type { Algoliasearch } from 'algoliasearch';
 import type {
+  AnyObject,
+  Document,
   PopulateOptions,
   ProjectionType,
   Schema,
-  Document,
 } from 'mongoose';
 
 export type TIndexName = string | ((args: any) => string);
@@ -44,3 +46,14 @@ export type TStaticMethods = {
   syncToAlgolia(): void;
   setAlgoliaSettings(settings: any): void;
 };
+
+export type TRemoveItemOptions<T = unknown> = {
+  doc: AnyObject;
+  client: Algoliasearch;
+  indexName: string;
+  options: TMongooseAlgoliaOptions<Schema<T>>;
+};
+
+export type TActionFunctionType<T = unknown> = (
+  props: TRemoveItemOptions<T>
+) => Promise<void> | void;
