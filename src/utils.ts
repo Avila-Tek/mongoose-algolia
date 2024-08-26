@@ -45,7 +45,7 @@ function applyVirtuals(doc: TDoc, virtuals: TVirtuals) {
     if (key in doc) {
       console.error(
         clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-        clc.cyanBright('Mongoose-Algolia'),
+        clc.cyanBright('@avila-tek/mongoose-algolia'),
         ' -> ',
         clc.red.bold('Error (Virtuals)'),
         ` -> ${key} is already defined`
@@ -191,7 +191,7 @@ const logger = {
   Error(action: string, err: any) {
     return console.error(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-      clc.cyanBright('Mongoose-Algolia'),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
       clc.red.bold(action),
       ' -> ',
@@ -201,7 +201,7 @@ const logger = {
   Success(action: string, id: any) {
     console.log(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-      clc.cyanBright('Mongoose-Algolia'),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
       clc.greenBright(action),
       ' -> ObjectId: ',

@@ -1,9 +1,7 @@
-import type { SearchClient } from 'algoliasearch';
-/* eslint-disable camelcase */
-/* eslint-disable no-await-in-loop */
-import clc from 'cli-color';
 import type { Document, IfAny, Model, Require_id, Schema } from 'mongoose';
 import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
+import type { Algoliasearch } from 'algoliasearch';
+import clc from 'cli-color';
 import utils from './utils';
 
 export async function synchronize<T = any>(
@@ -16,7 +14,7 @@ export async function synchronize<T = any>(
     any
   >,
   options: TMongooseAlgoliaOptions<Schema<T>>,
-  client: SearchClient
+  client: Algoliasearch
 ) {
   let docs: any[] = [];
   const indicesMap: Record<string, any[]> = {};
@@ -31,7 +29,7 @@ export async function synchronize<T = any>(
   } catch (err) {
     console.error(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-      clc.cyanBright('Mongoose-Algolia'),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
       clc.red.bold('Error'),
       ' -> ',
@@ -48,33 +46,36 @@ export async function synchronize<T = any>(
     }
   }
 
+  // Clear the indexes
   try {
     for (const currentIndexName of Object.keys(indicesMap)) {
-      const currentIndex = client.initIndex(currentIndexName);
-      if (await currentIndex.exists()) {
-        await currentIndex.clearObjects();
-        if (options.debug) {
-          console.log(
-            clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-            clc.cyanBright('Mongoose-Algolia'),
-            ' -> ',
-            clc.greenBright('Cleared Index'),
-            ' -> ',
-            currentIndexName
-          );
-        }
-      } else if (options.debug) {
+      await client.clearObjects({ indexName: currentIndexName });
+      if (options.debug) {
         console.log(
           clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-          clc.cyanBright('Mongoose-Algolia'),
-          ' -> ',
-          clc.redBright(`${currentIndexName} does not exist`),
+          clc.cyanBright('@avila-tek/mongoose-algolia'),
           ' -> ',
           clc.greenBright('Cleared Index'),
           ' -> ',
           currentIndexName
         );
       }
+    }
+  } catch (err) {
+    console.error(
+      clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
+      ' -> ',
+      clc.red.bold('Error'),
+      ' -> ',
+      err
+    );
+  }
+
+  // sync the indexes again
+
+  try {
+    for (const currentIndexName of Object.keys(indicesMap)) {
       let objects = indicesMap[currentIndexName];
 
       if (typeof options.filter !== 'undefined' && options.filter !== null) {
@@ -95,14 +96,16 @@ export async function synchronize<T = any>(
             ? objects.slice(i * chunkSize)
             : objects.slice(i * chunkSize, (i + 1) * chunkSize);
 
-        await currentIndex.saveObjects(chunk);
+        await client.saveObjects({
+          indexName: currentIndexName,
+          objects: chunk,
+        });
       }
-      // await currentIndex.saveObjects(objects);
     }
   } catch (err) {
     console.error(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
-      clc.cyanBright('Mongoose-Algolia'),
+      clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
       clc.red.bold('Error'),
       ' -> ',

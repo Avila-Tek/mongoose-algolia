@@ -1,14 +1,18 @@
-import type { SearchClient, SearchIndex } from 'algoliasearch';
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-use-before-define */
-import type { AnyObject, Model, Schema } from 'mongoose';
-import type { TDoc, TMongooseAlgoliaOptions, TStaticMethods } from './types';
+import type { Algoliasearch } from 'algoliasearch';
+import { Query, Model, Schema } from 'mongoose';
+import type {
+  TActionFunctionType,
+  TMongooseAlgoliaOptions,
+  TStaticMethods,
+} from './types';
+import { removeItem } from './actions/removeItem';
+import { syncItem } from './actions/syncItem';
 import utils from './utils';
 
 export function operations<T, TModel = Model<T, any, TStaticMethods, any>>(
   schema: Schema<T, TModel>,
   options: TMongooseAlgoliaOptions<Schema<T>>,
-  client: SearchClient
+  client: Algoliasearch
 ) {
   schema.pre('save', function (next) {
     let isModified = false;
@@ -53,52 +57,21 @@ export function operations<T, TModel = Model<T, any, TStaticMethods, any>>(
     await runActionOnIndices(this, removeItem);
   });
 
-  async function runActionOnIndices(
-    doc: AnyObject,
-    action: (_doc: AnyObject, index: SearchIndex) => any
-  ) {
+  async function runActionOnIndices(doc: any, action: TActionFunctionType) {
     const indexName = await utils.getIndexName(doc as any, options.indexName);
-    action(doc, client.initIndex(indexName));
-  }
-
-  async function removeItem(doc: AnyObject, index: SearchIndex) {
-    try {
-      await index.deleteObject(doc._id.toString());
-      if (options.debug) {
-        utils.logger.Success('Deleted', doc._id);
-      }
-    } catch (err) {
-      utils.logger.Error('Error', err);
+    // This is a workaroung for the deleteOne query
+    // the idea si to preserve the _id before the delete query is executed
+    if (doc instanceof Query) {
+      doc = {
+        _id: doc.getFilter()._id,
+      };
     }
-  }
-
-  async function syncItem(doc: AnyObject, index: SearchIndex) {
-    if (options.filter && !options.filter(doc._doc)) {
-      return removeItem(doc, index);
-    }
-    if (!doc.algoliaWasNew && !doc.algoliaWasModified) {
-      return undefined;
-    }
-    let populated: Omit<TDoc, never> | null = null;
-    try {
-      populated = await utils.applyPopulation(doc as any, options.populate);
-    } catch (err) {
-      utils.logger.Error('Error (at population)', err);
-    }
-    try {
-      if (!populated) {
-        throw new Error('Populated is null');
-      }
-      const content = await index.saveObject(populated.getAlgoliaObject());
-      if (options.debug) {
-        utils.logger.Success(
-          doc.algoliaWasNew ? 'Created' : 'Updated',
-          content.objectID
-        );
-      }
-    } catch (err) {
-      utils.logger.Error('Error (at uploading)', err);
-    }
+    action({
+      client,
+      doc,
+      indexName,
+      options,
+    });
   }
 
   schema.methods.syncToAlgolia = async function () {

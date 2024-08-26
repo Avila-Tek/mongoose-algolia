@@ -111,17 +111,17 @@ describe('Mongoose Algolia Plugin', () => {
     );
   });
 
-  // it('remove-from-algolia', async () => {
-  //   const characters = await Character.find().exec();
-  //   await Promise.all(
-  //     characters.map((character) => (character as any).removeFromAlgolia())
-  //   );
-  // });
+  it('remove-from-algolia', async () => {
+    const characters = await Character.find().exec();
+    await Promise.all(
+      characters.map((character) => (character as any).removeFromAlgolia())
+    );
+  });
 
-  // it('remove', async () => {
-  //   const characters = await Character.find().exec();
-  //   const shows = await Show.find().exec();
-  //   await Promise.all(characters.map((character) => character.deleteOne()));
-  //   await Promise.all(shows.map((show) => show.deleteOne()));
-  // });
+  it('remove', async () => {
+    const characters = await Character.find().exec();
+    const shows = await Show.find().exec();
+    await Promise.all(characters.map((character) => character.deleteOne()));
+    await Promise.all(shows.map((show) => show.deleteOne()));
+  });
 });
