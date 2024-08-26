@@ -16,7 +16,6 @@
     "declaration": true,
     "sourceMap": true,
 
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

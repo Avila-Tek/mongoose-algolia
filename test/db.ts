@@ -1,8 +1,8 @@
+import { MongoMemoryServer } from 'mongodb-memory-server';
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongod: MongoMemoryServer;
 

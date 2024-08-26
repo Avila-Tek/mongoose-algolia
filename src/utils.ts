@@ -1,5 +1,5 @@
-import deepKeys from 'deep-keys';
 import clc from 'cli-color';
+import deepKeys from 'deep-keys';
 import type {
   TDefault,
   TDoc,

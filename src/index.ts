@@ -1,9 +1,9 @@
 import algoliasearch from 'algoliasearch';
 import type { Model, Schema } from 'mongoose';
-import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 import { operations } from './operations';
 import { TAlgoliaSettings, syncSettings } from './settings';
 import { synchronize } from './syncronize';
+import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 
 export function algoliaIntegration<T = any>(
   schema: Schema<T, Model<T, any, TStaticMethods, any>>,

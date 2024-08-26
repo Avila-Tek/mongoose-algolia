@@ -1,10 +1,10 @@
-import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { faker } from '@faker-js/faker';
-import { connect, close } from './db';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { close, connect } from './db';
 import { Character } from './models/Character';
+import { Product } from './models/Product';
 import { Show } from './models/Show';
 import sampleData from './sampleData.json';
-import { Product } from './models/Product';
 
 beforeAll(async () => {
   await connect();

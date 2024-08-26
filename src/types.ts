@@ -1,8 +1,8 @@
 import type {
+  Document,
   PopulateOptions,
   ProjectionType,
   Schema,
-  Document,
 } from 'mongoose';
 
 export type TIndexName = string | ((args: any) => string);

@@ -1,9 +1,9 @@
+import type { Settings } from '@algolia/client-search';
+import type { SearchClient } from 'algoliasearch';
 /* eslint-disable camelcase */
 /* eslint-disable no-await-in-loop */
 import clc from 'cli-color';
-import type { SearchClient } from 'algoliasearch';
 import type { Document, IfAny, Model, Require_id, Schema } from 'mongoose';
-import type { Settings } from '@algolia/client-search';
 import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 import utils from './utils';
 

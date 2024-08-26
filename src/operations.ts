@@ -1,7 +1,7 @@
+import type { SearchClient, SearchIndex } from 'algoliasearch';
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-use-before-define */
 import type { AnyObject, Model, Schema } from 'mongoose';
-import type { SearchClient, SearchIndex } from 'algoliasearch';
 import type { TDoc, TMongooseAlgoliaOptions, TStaticMethods } from './types';
 import utils from './utils';
 
