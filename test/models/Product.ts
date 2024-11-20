@@ -169,6 +169,7 @@ productSchema.plugin(algoliaIntegration, {
     sku: (doc) => `#${doc?.sku}`,
   },
   debug: true,
+  chunkSize: 1,
 });
 
 export const Product = model<IProduct, ProductModel>('Product', productSchema);

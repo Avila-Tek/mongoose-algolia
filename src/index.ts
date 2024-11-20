@@ -42,8 +42,6 @@ export function algoliaIntegration<T = any>(
 
   operations<T>(schema, options, client);
 
-
-
   schema.statics.syncToAlgolia = async function () {
     const callable = synchronize.bind(this as any);
     return await callable(options, client);

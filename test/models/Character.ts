@@ -79,6 +79,7 @@ characterSchema.plugin(algoliaIntegration<ICharacter>, {
     },
   },
   debug: true,
+  chunkSize: 1,
 });
 
 export const Character = model<ICharacter, CharacterModel>(

@@ -17,7 +17,10 @@ export function operations<T, TModel = Model<T, any, TStaticMethods, any>>(
   schema.pre('save', function (next) {
     let isModified = false;
 
-    const relevantKeys = utils.getRelevantKeys(this.toJSON(), options.selector);
+    const relevantKeys = utils.getRelevantKeys(
+      this.toJSON() as any,
+      options.selector
+    );
     if (relevantKeys !== null && Array.isArray(relevantKeys)) {
       relevantKeys.forEach((key) => {
         if (this.isModified(key)) {
