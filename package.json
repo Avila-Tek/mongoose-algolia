@@ -1,6 +1,6 @@
 {
   "name": "@avila-tek/mongoose-algolia",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "type": "module",
   "main": "dist/at-mongoose-algolia.umd.cjs",
   "module": "./dist/at-mongoose-algolia.js",
@@ -21,8 +21,8 @@
     "url": "https://avilatek.com"
   },
   "engines": {
-    "node": ">= 20.0.0",
-    "npm": ">= 9.0.0"
+    "node": ">= 22.0.0",
+    "npm": ">= 10.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -34,30 +34,25 @@
     "lint:fix": "npx @biomejs/biome check --write ."
   },
   "dependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "cli-color": "^2.0.4",
-    "deep-keys": "^0.5.0",
-    "xhr2": "^0.2.1"
+    "cli-color": "2.0.4",
+    "deep-keys": "0.5.0",
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
-    "@types/cli-color": "^2.0.6",
-    "@types/node": "^22.5.0",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
-    "@vitest/coverage-v8": "^2.0.5",
-    "algoliasearch": "^5.1.1",
-    "dotenv": "^16.4.5",
-    "mongodb-memory-server": "^10.0.0",
-    "mongoose": "^8.5.4",
-    "prettier": "^3.3.3",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.7.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.2",
-    "vite-plugin-dts": "^4.0.3",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vitest": "^2.0.5"
+    "@biomejs/biome": "1.9.4",
+    "@faker-js/faker": "9.2.0",
+    "@types/cli-color": "2.0.6",
+    "@types/node": "22.10.1",
+    "@vitest/coverage-v8": "2.1.6",
+    "algoliasearch": "5.15.0",
+    "dotenv": "16.4.5",
+    "mongodb-memory-server": "10.1.2",
+    "mongoose": "8.8.3",
+    "typescript": "5.7.2",
+    "vite": "6.0.1",
+    "vite-plugin-dts": "4.3.0",
+    "vite-plugin-node-polyfills": "0.22.0",
+    "vitest": "2.1.6"
   },
   "peerDependencies": {
     "algoliasearch": ">= 5.0.0",

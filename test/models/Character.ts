@@ -53,10 +53,25 @@ const characterSchema = new Schema<ICharacter, CharacterModel, TStaticMethods>(
   }
 );
 
-characterSchema.plugin(algoliaIntegration<ICharacter>, {
+characterSchema.plugin(algoliaIntegration<Schema<ICharacter>>, {
   appId: process.env.ALGOLIA_APP_ID!,
   apiKey: process.env.ALGOLIA_API_KEY!,
-  indexName: 'characters',
+  indexes: [
+    {
+      indexName: 'characters',
+      indexSettings: {
+        searchableAttributes: ['name', 'properties', 'shows', 'age'],
+        customRanking: ['desc(createdAt)'],
+      },
+    },
+    {
+      indexName: 'asc_characters',
+      indexSettings: {
+        searchableAttributes: ['name', 'properties', 'shows', 'age'],
+        customRanking: ['asc(createdAt)'],
+      },
+    },
+  ],
   populate: {
     path: 'shows',
     select: 'name genre -_id',
@@ -79,13 +94,10 @@ characterSchema.plugin(algoliaIntegration<ICharacter>, {
     },
   },
   debug: true,
+  chunkSize: 1,
 });
 
 export const Character = model<ICharacter, CharacterModel>(
   'Character',
   characterSchema
 );
-
-Character.setAlgoliaSettings({
-  searchableAttributes: ['name', 'properties', 'shows', 'age'],
-});

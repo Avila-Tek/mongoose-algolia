@@ -10,14 +10,32 @@ import type {
   TVirtuals,
 } from './types';
 
+/**
+ * Wraps a value in a promise if it is not already a Promise.
+ * @template T
+ * @param {T} value - The value to wrap in a Promise.
+ * @returns {Promise<T>} The resolved Promise.
+ */
 function promisify<T>(value: T): Promise<T> {
   return value instanceof Promise ? value : Promise.resolve(value);
 }
 
+/**
+ * Resolves the index name for the document.
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TIndexName} indexName - The index name or a function returning it.
+ * @returns {Promise<string>} The resolved index name.
+ */
 function getIndexName(doc: TDoc, indexName: TIndexName) {
   return promisify(typeof indexName !== 'string' ? indexName(doc) : indexName);
 }
 
+/**
+ * Populates the Mongoose document if a population rule is provided.
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TPopulate} [populate] - The population rules.
+ * @returns {TDoc} The populated document.
+ */
 function applyPopulation(doc: TDoc, populate?: TPopulate) {
   if (!populate) {
     return doc;
@@ -25,6 +43,12 @@ function applyPopulation(doc: TDoc, populate?: TPopulate) {
   return doc.populate(populate);
 }
 
+/**
+ * Applies mappings to the document fields using the specified mapping functions.
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TMappings} [mappings] - The mapping functions for each field.
+ * @returns {TDoc} The transformed document.
+ */
 function applyMappings(doc: TDoc, mappings?: TMappings) {
   if (!mappings) {
     return doc;
@@ -38,6 +62,12 @@ function applyMappings(doc: TDoc, mappings?: TMappings) {
   return doc;
 }
 
+/**
+ * Adds virtual fields to the document.
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TVirtuals} virtuals - The virtual fields to add.
+ * @returns {TDoc} The document with virtual fields.
+ */
 function applyVirtuals(doc: TDoc, virtuals: TVirtuals) {
   if (!virtuals) return doc;
 
@@ -58,6 +88,12 @@ function applyVirtuals(doc: TDoc, virtuals: TVirtuals) {
   return doc;
 }
 
+/**
+ * Applies default values to the document fields.
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TDefault} [defaults] - The default values for fields.
+ * @returns {TDoc} The document with defaults applied.
+ */
 function applyDefaults(doc: TDoc, defaults?: TDefault) {
   if (!defaults) return doc;
 
@@ -71,6 +107,13 @@ function applyDefaults(doc: TDoc, defaults?: TDefault) {
   return doc;
 }
 
+/**
+ * Sets a nested value in an object using a dot-separated path.
+ * @param {TDoc} source - The source object.
+ * @param {string} path - The dot-separated path to set the value.
+ * @param {*} value - The value to set.
+ * @returns {TDoc} The updated source object.
+ */
 function setObjectPathValue(source: TDoc, path: string, value: any) {
   const parts = path.split('.');
   const len = parts.length;
@@ -78,13 +121,21 @@ function setObjectPathValue(source: TDoc, path: string, value: any) {
 
   for (let i = 0, part; i < len; i += 1) {
     part = parts[i];
-    target =
-      typeof target[part] === 'undefined' ? (target[part] = {}) : target[part];
+    if (target[part] === 'undefined') {
+      target[part] = {};
+    }
+    target = target[part];
   }
   target[parts[len - 1]] = value;
   return target;
 }
 
+/**
+ * Retrieves a nested value from an object using a dot-separated path.
+ * @param {TDoc} source - The source object.
+ * @param {string} path - The dot-separated path to retrieve the value.
+ * @returns {*} The retrieved value.
+ */
 function getObjectPathValue(source: TDoc, path: string) {
   const parts = path.split('.');
   const len = parts.length;
@@ -102,6 +153,12 @@ function getObjectPathValue(source: TDoc, path: string) {
     : undefined;
 }
 
+/**
+ * Deletes a nested value from an object using a dot-separated path.
+ * @param {TDoc} source - The source object.
+ * @param {string} path - The dot-separated path to delete the value.
+ * @returns {TDoc} The updated source object.
+ */
 function deleteObjectPathValue(source: TDoc, path: string) {
   const parts = path.split('.');
   const len = parts.length;
@@ -109,13 +166,22 @@ function deleteObjectPathValue(source: TDoc, path: string) {
 
   for (let i = 0, part; i < len; i += 1) {
     part = parts[i];
-    target =
-      typeof target[part] === 'undefined' ? (target[part] = {}) : target[part];
+    if (target[part] === 'undefined') {
+      target[part] = {};
+    }
+    target = target[part];
   }
   delete target[parts[len - 1]];
   return target;
 }
 
+/**
+ * Extracts `keep` and `remove` field lists from a selector object or string.
+ * @template T
+ * @param {TDoc} _doc - The Mongoose document.
+ * @param {TSelector<T>} [selector] - The selector object or string.
+ * @returns {{ keys: string[], remove: string[], keep: string[] }} The parsed selector fields.
+ */
 function getSelectors<T>(_doc: TDoc, selector?: TSelector<T>) {
   let keys: string[] = [];
 
@@ -144,6 +210,13 @@ function getSelectors<T>(_doc: TDoc, selector?: TSelector<T>) {
   return { keys, remove, keep };
 }
 
+/**
+ * Filters document fields based on the selector.
+ * @template T
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TSelector<T>} [selector] - The field selector.
+ * @returns {TDoc} The filtered document.
+ */
 function applySelector<T>(doc: TDoc, selector?: TSelector<T>) {
   let _doc = doc;
   if (!selector) return _doc;
@@ -168,28 +241,14 @@ function applySelector<T>(doc: TDoc, selector?: TSelector<T>) {
   return _doc;
 }
 
-function getRelevantKeys<T>(doc: TDoc, selector: TSelector<T>) {
-  if (!selector) return null;
-
-  delete doc._id;
-  delete doc.__v;
-
-  const { remove, keep } = getSelectors(doc, selector);
-
-  if (keep.length) {
-    return keep;
-  }
-
-  if (remove.length) {
-    const keys = deepKeys(doc);
-    return keys.filter((key: any) => !remove.includes(key));
-  }
-  return null;
-}
-
+/**
+ * Logs an error message with a standardized format.
+ * @param {string} action - The action being logged.
+ * @param {*} err - The error details.
+ */
 const logger = {
   Error(action: string, err: any) {
-    return console.error(
+    console.error(
       clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
       clc.cyanBright('@avila-tek/mongoose-algolia'),
       ' -> ',
@@ -210,7 +269,37 @@ const logger = {
   },
 };
 
-const utils = {
+/**
+ * Retrieves keys relevant to indexing based on the provided selector.
+ * Excludes default Mongoose fields like `_id` and `__v`.
+ * @template T
+ * @param {TDoc} doc - The Mongoose document.
+ * @param {TSelector<T>} selector - The field selector.
+ * @returns {string[] | null} The relevant keys for indexing, or `null` if no selector is provided.
+ */
+function getRelevantKeys<T>(doc: TDoc, selector: TSelector<T>) {
+  if (!selector) return null;
+
+  delete doc._id;
+  delete doc.__v;
+
+  const { remove, keep } = getSelectors(doc, selector);
+
+  if (keep.length) {
+    return keep;
+  }
+
+  if (remove.length) {
+    const keys = deepKeys(doc);
+    return keys.filter((key: any) => !remove.includes(key));
+  }
+  return null;
+}
+
+/**
+ * Utility functions for Mongoose to Algolia synchronization.
+ */
+const utils = Object.freeze({
   getIndexName,
   applySelector,
   applyPopulation,
@@ -218,7 +307,8 @@ const utils = {
   applyMappings,
   applyVirtuals,
   getRelevantKeys,
+  promisify,
   logger,
-};
+});
 
 export default utils;

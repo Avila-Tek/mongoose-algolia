@@ -153,10 +153,31 @@ const productSchema = new Schema<IProduct, ProductModel, TStaticMethods>(
   { timestamps: true }
 );
 
-productSchema.plugin(algoliaIntegration, {
+productSchema.plugin(algoliaIntegration<Schema<IProduct>>, {
   appId: process.env.ALGOLIA_APP_ID!,
   apiKey: process.env.ALGOLIA_API_KEY!,
-  indexName: 'products',
+  indexes: [
+    {
+      indexName: 'products',
+      indexSettings: {
+        searchableAttributes: [
+          'sku',
+          'name',
+          'price',
+          'compareAtPrice',
+          'statusType',
+        ],
+        attributesForFaceting: [
+          'categories',
+          'categories.name',
+          'measurementType',
+          'tags',
+          'isGiftCard',
+        ],
+        customRanking: ['desc(points)', 'asc(price)', 'desc(price)'],
+      },
+    },
+  ],
   selector: '-createdAt -updatedAt',
   populate: {
     path: 'categories',
@@ -169,26 +190,9 @@ productSchema.plugin(algoliaIntegration, {
     sku: (doc) => `#${doc?.sku}`,
   },
   debug: true,
+  chunkSize: 1,
 });
 
 export const Product = model<IProduct, ProductModel>('Product', productSchema);
-
-Product.setAlgoliaSettings({
-  searchableAttributes: [
-    'sku',
-    'name',
-    'price',
-    'compareAtPrice',
-    'statusType',
-  ],
-  attributesForFaceting: [
-    'categories',
-    'categories.name',
-    'measurementType',
-    'tags',
-    'isGiftCard',
-  ],
-  ranking: ['desc(points)', 'asc(price)', 'desc(price)'],
-});
 
 Product.syncToAlgolia().then((x) => console.log(x));

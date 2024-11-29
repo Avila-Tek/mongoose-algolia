@@ -119,7 +119,7 @@
         "noInferrableTypes": "warn",
         "noNamespace": "error",
         "noNegationElse": "off",
-        "noParameterAssign": "error",
+        "noParameterAssign": "off",
         "noRestrictedGlobals": {
           "level": "error",
           "options": {
@@ -255,11 +255,19 @@
       "quoteStyle": "single",
       "attributePosition": "auto"
     },
-    "globals": ["Atomics", "SharedArrayBuffer"]
+    "globals": [
+      "Atomics",
+      "SharedArrayBuffer"
+    ]
   },
   "overrides": [
     {
-      "include": ["*.ts", "*.tsx", "*.mts", "*.cts"],
+      "include": [
+        "*.ts",
+        "*.tsx",
+        "*.mts",
+        "*.cts"
+      ],
       "linter": {
         "rules": {
           "correctness": {
