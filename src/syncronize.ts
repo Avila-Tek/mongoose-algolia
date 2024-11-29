@@ -1,8 +1,11 @@
 import type { Document, IfAny, Model, Require_id, Schema } from 'mongoose';
-import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
+import type {
+  TIndexConfig,
+  TMongooseAlgoliaOptions,
+  TStaticMethods,
+} from './types';
 import type { Algoliasearch } from 'algoliasearch';
 import clc from 'cli-color';
-import utils from './utils';
 
 export async function synchronize<T = any>(
   this: Model<
@@ -25,15 +28,16 @@ export async function synchronize<T = any>(
   const totalObjects = await this.countDocuments();
   const pages = Math.ceil(totalObjects / chunkSize);
   let page = 1;
-  console.log({
-    chunkSize,
-    totalObjects,
-    pages,
-    page,
-  });
+
   while (page <= pages) {
     let docs: any[] = [];
-    const indicesMap: Record<string, any[]> = {};
+    const indicesMap: Record<
+      string,
+      {
+        index: TIndexConfig;
+        docs: any[];
+      }
+    > = {};
     console.log(`CHUNCK ${page}/${pages} ...`);
     try {
       let query = null;
@@ -68,11 +72,16 @@ export async function synchronize<T = any>(
       );
     }
     for (const doc of docs) {
-      const indexName = await utils.getIndexName(doc, options.indexName);
-      if (indicesMap[indexName]) {
-        indicesMap[indexName].push(doc);
-      } else {
-        indicesMap[indexName] = [doc];
+      for (const index of options.indexes) {
+        const indexName = index.indexName;
+        if (indicesMap[indexName]) {
+          indicesMap[indexName].docs.push(doc);
+        } else {
+          indicesMap[indexName] = {
+            index,
+            docs: [doc],
+          };
+        }
       }
     }
 
@@ -91,7 +100,36 @@ export async function synchronize<T = any>(
               currentIndexName
             );
           }
-        } 
+        }
+      }
+    } catch (err) {
+      console.error(
+        clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
+        clc.cyanBright('@avila-tek/mongoose-algolia'),
+        ' -> ',
+        clc.red.bold('Error'),
+        ' -> ',
+        err
+      );
+    }
+    // Set settings
+    try {
+      for (const [indexName, indexData] of Object.entries(indicesMap)) {
+        await client.setSettings({
+          indexName: indexData.index.indexName,
+          indexSettings: indexData.index.indexSettings,
+          forwardToReplicas: indexData.index.forwardToReplicas,
+        });
+        if (options.debug) {
+          console.log(
+            clc.blackBright(`[${new Date().toLocaleTimeString()}]`),
+            clc.cyanBright('@avila-tek/mongoose-algolia'),
+            ' -> ',
+            clc.greenBright('Updated Settings'),
+            ' -> ',
+            indexName
+          );
+        }
       }
     } catch (err) {
       console.error(
@@ -107,7 +145,7 @@ export async function synchronize<T = any>(
     // sync the indexes again
     try {
       for (const currentIndexName of Object.keys(indicesMap)) {
-        let objects = indicesMap[currentIndexName];
+        let objects = indicesMap[currentIndexName].docs;
 
         if (typeof options.filter !== 'undefined' && options.filter !== null) {
           objects = objects.filter((obj) => {
@@ -125,7 +163,6 @@ export async function synchronize<T = any>(
           indexName: currentIndexName,
           objects: objects,
         });
-        objects;
       }
     } catch (err) {
       console.error(

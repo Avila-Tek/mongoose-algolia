@@ -15,6 +15,7 @@
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
+    "removeComments": false,
 
     /* Linting */
     "strict": true,

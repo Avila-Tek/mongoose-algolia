@@ -1,13 +1,13 @@
-import { algoliasearch, IndexSettings } from 'algoliasearch';
-import type { Model, Schema } from 'mongoose';
+import { ZodError } from 'zod';
+import { Schema } from 'mongoose';
+import { type TMongooseAlgoliaOptions, indexSchema } from './types';
+import { algoliasearch } from 'algoliasearch';
 import { operations } from './operations';
-import { syncSettings } from './settings';
 import { synchronize } from './syncronize';
-import type { TMongooseAlgoliaOptions, TStaticMethods } from './types';
 
-export function algoliaIntegration<T = any>(
-  schema: Schema<T, Model<T, any, TStaticMethods, any>>,
-  opts: TMongooseAlgoliaOptions<Schema<T>>
+export function algoliaIntegration<T extends Schema>(
+  schema: T,
+  opts: TMongooseAlgoliaOptions
 ) {
   const options: TMongooseAlgoliaOptions<Schema<T>> = {
     selector: null,
@@ -17,14 +17,35 @@ export function algoliaIntegration<T = any>(
     filter: null,
     populate: null,
     debug: false,
+    chunkSize: 100,
     // Override default options with user supplied
     ...opts,
+    runOn: {
+      isActiveFalse: true,
+      ...(opts?.runOn ?? {}),
+    },
   };
 
-  if (!options.indexName) {
+  if (typeof options.indexes === 'undefined') {
     throw new TypeError(
-      '[@avila-tek/mongoose-algolia]: The indexName opts is required'
+      '[@avila-tek/mongoose-algolia]: The indexes opts is required'
     );
+  }
+
+  if (!Array.isArray(options.indexes)) {
+    throw new TypeError(
+      '[@avila-tek/mongoose-algolia]: The indexes should be an array'
+    );
+  }
+
+  try {
+    indexSchema.parse(options.indexes);
+  } catch (err) {
+    if (err instanceof ZodError) {
+      throw new TypeError(
+        `[@avila-tek/mongoose-algolia]: ${JSON.stringify(err.errors)}`
+      );
+    }
   }
 
   if (!options.apiKey) {
@@ -32,6 +53,7 @@ export function algoliaIntegration<T = any>(
       '[@avila-tek/mongoose-algolia]: The apiKey opts is required'
     );
   }
+
   if (!options.appId) {
     throw new TypeError(
       '[@avila-tek/mongoose-algolia]: The appId opts is required'
@@ -45,15 +67,5 @@ export function algoliaIntegration<T = any>(
   schema.statics.syncToAlgolia = async function () {
     const callable = synchronize.bind(this as any);
     return await callable(options, client);
-  };
-
-  schema.statics.setAlgoliaSettings = async function (settings: IndexSettings) {
-    if (!settings) {
-      throw new Error(
-        '[@avila-tek/mongoose-algolia]: You must provide settings'
-      );
-    }
-    const callable = syncSettings.bind(this as any);
-    return await callable(settings, options, client);
   };
 }
